@@ -1,5 +1,5 @@
 export type Event = {
-  id: number
+  id?: number
   title: string
   url_title?: string
   capacity: number
@@ -11,6 +11,24 @@ export type Event = {
   location: string
   is_free: boolean
   preview_image?: string
-  utc_offset: number
+  utc_offset?: number
   minimal_age: number
+  prices?: Array<Price>
+}
+
+export type Price = {
+  id?: number
+  price: number
+  currency: string
+}
+
+export type User = {
+  email: string
+  tg_username?: string
+  yookassa_settings: YookassaSettings
+}
+
+type YookassaSettings = {
+  shop_id: string
+  shop_key: string
 }

@@ -5,11 +5,13 @@ import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { validateEmail } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 export default function SignUp() {
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
   const { toast } = useToast()
+  const router = useRouter()
 
   const callToast = (
     message: string,
@@ -60,15 +62,18 @@ export default function SignUp() {
           return
         }
 
-        callToast(data.message, "success")
+        router.push("/")
+        setTimeout(() => {
+          window.location.reload()
+        }, 100)
       })
       .catch((error: Error) => {
-        callToast(`${error.message}... try again later`)
+        callToast(`${error.message}... try again later`, "destructive")
       })
   }
 
   return (
-    <div className="mt-8 flex-1 sm:w-screen md:mx-auto md:w-full md:max-w-md">
+    <div className="flex-1 sm:w-screen md:mx-auto md:w-full md:max-w-md">
       <div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
         <div className="space-y-6">
           <div>

@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   )
 
   useEffect(() => {
-    if (jwtToken == "") {
+    if (jwtToken === "") {
       refresh()
         .then((data: any) => {
           if (data.message) {
@@ -88,14 +88,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const jwtPayload = parseJwt(data.message)
             setEmail(jwtPayload.email)
             setRole(jwtPayload.role)
-            console.log(jwtPayload)
 
             toggleRefresh(true)
           }
         })
-        .catch((err: Error) => {
-          // console.log(err)
-        })
+        .catch((err: Error) => {})
     }
   }, [jwtToken, toggleRefresh])
 

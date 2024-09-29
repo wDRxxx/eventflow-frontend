@@ -66,16 +66,18 @@ export default function LogIn() {
           return
         }
 
-        callToast("Welcome!", "success")
         router.push("/")
+        setTimeout(() => {
+          window.location.reload()
+        }, 100)
       })
       .catch((error: Error) => {
-        callToast(`${error.message}... try again later`)
+        callToast(`${error.message}... try again later`, "destructive")
       })
   }
 
   return (
-    <div className="mt-8 flex-1 sm:w-screen md:mx-auto md:w-full md:max-w-md">
+    <div className="flex-1 sm:w-screen md:mx-auto md:w-full md:max-w-md">
       <div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
         <form className="space-y-6">
           <div>
