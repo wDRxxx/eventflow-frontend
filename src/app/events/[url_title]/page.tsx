@@ -46,6 +46,7 @@ export default function EventPage(props: EventPageProps) {
       .then((resp) => resp.json())
       .then((data) => {
         setEvent(data)
+        console.log(data)
         if (data.prices !== null) {
           setPrice(data.prices[0])
         }
@@ -77,6 +78,7 @@ export default function EventPage(props: EventPageProps) {
           return
         }
 
+        console.log(data)
         if (!event?.is_free) {
           window.open(data.message, "_blank")
           return
@@ -91,31 +93,36 @@ export default function EventPage(props: EventPageProps) {
         <div className={"w-52"}>
           {
             // @ts-ignore
-            event?.is_free || event?.capacity > 0 ? (
-              <div>Free</div>
-            ) : (
-              <div className={"flex w-52 items-center"}>
-                <div className={"w-1/3"}>{price?.price}</div>
-                <div className={"ml-2 w-2/3"}>
-                  <Select
-                    onValueChange={(val) => {
-                      // @ts-ignore
-                      setPrice(val)
-                    }}
-                  >
-                    <SelectTrigger>{price?.currency}</SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {event?.prices?.map((p) => {
-                          // @ts-ignore
-                          return <SelectItem value={p}>{p.currency}</SelectItem>
-                        })}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+            event?.capacity > 0 &&
+              (event?.is_free ? (
+                <div>Free</div>
+              ) : (
+                <div className={"flex w-52 items-center"}>
+                  <div className={"w-1/3"}>{price?.price}</div>
+                  <div className={"ml-2 w-2/3"}>
+                    <Select
+                      onValueChange={(val) => {
+                        // @ts-ignore
+                        setPrice(val)
+                      }}
+                    >
+                      <SelectTrigger>{price?.currency}</SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {event?.prices?.map((p, i) => {
+                            return (
+                              // @ts-ignore
+                              <SelectItem value={p} key={i}>
+                                {p.currency}
+                              </SelectItem>
+                            )
+                          })}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-              </div>
-            )
+              ))
           }
           <Dialog>
             <DialogTrigger asChild={true}>
