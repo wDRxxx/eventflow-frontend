@@ -203,6 +203,44 @@ export default function EditEvent(props: EditEventPageProps) {
     updateEvent()
   }
 
+  const deleteEvent = () => {
+    const headers = new Headers()
+    headers.append("Authorization", `Bearer ${jwtToken}`)
+    const requestOptions = {
+      headers: headers,
+      method: "DELETE",
+    }
+
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND}/events/${props.params.url_title}`,
+      requestOptions,
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          toast({
+            title: data.message,
+            variant: "destructive",
+          })
+
+          return
+        }
+
+        toast({
+          title: data.message,
+          variant: "success",
+        })
+
+        router.push("/")
+      })
+      .catch((error: Error) => {
+        toast({
+          title: error.message,
+          variant: "destructive",
+        })
+      })
+  }
+
   return (
     <div
       className={"rounded bg-white/30 backdrop-blur md:h-[95vh] md:w-[95vw]"}
@@ -217,7 +255,9 @@ export default function EditEvent(props: EditEventPageProps) {
                     ? image !== undefined
                       ? URL.createObjectURL(image)
                       : `${process.env.NEXT_PUBLIC_BACKEND}/static/${event.preview_image}`
-                    : `${process.env.NEXT_PUBLIC_BACKEND}/static/${event.preview_image}`
+                    : image !== undefined
+                      ? URL.createObjectURL(image)
+                      : ""
                 }
                 className={"h-full w-full object-cover"}
               />
@@ -455,6 +495,14 @@ export default function EditEvent(props: EditEventPageProps) {
                 )}
               </div>
             </div>
+            {props.params.url_title !== "new" && (
+              <Button
+                className={"mt-10 w-full bg-red-600 hover:bg-red-500"}
+                onClick={deleteEvent}
+              >
+                delete event
+              </Button>
+            )}
           </div>
         </div>
         <div className={"md:h-1/2"}>
