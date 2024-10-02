@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input"
 import { Event, Price } from "@/types"
-import { ChangeEvent, useState } from "react"
+import { ChangeEvent, useEffect, useState } from "react"
 import { DateTimePicker } from "@/components/ui/time-picker/DateTimePicker"
 import MDEditor from "@uiw/react-md-editor"
 import { Label } from "@/components/ui/label"
@@ -20,7 +20,13 @@ import { useAuth } from "@/components/providers/AuthProvider"
 import { toast, useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 
-export default function CreateEvent() {
+type EditEventPageProps = {
+  params: {
+    url_title: string
+  }
+}
+
+export default function EditEvent(props: EditEventPageProps) {
   const { user } = useUser()
   const { jwtToken } = useAuth()
   const { toast } = useToast()
@@ -48,11 +54,27 @@ export default function CreateEvent() {
     setEvent({ ...event, [e.target.title]: e.target.value })
   }
 
-  const createEvent = (e: any) => {
-    e.preventDefault()
+  useEffect(() => {
+    if (props.params.url_title !== "new") {
+      fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND}/events/${props.params.url_title}`,
+      )
+        .then((resp) => resp.json())
+        .then((data) => {
+          if (data.prices == null) {
+            data.prices = []
+          }
+          for (let i = 0; i < data.prices?.length; i++) {
+            data.prices[i].not_visible = false
+          }
+          data.beginning_time = new Date(Date.parse(data.beginning_time))
+          data.end_time = new Date(Date.parse(data.end_time))
+          setEvent(data)
+        })
+    }
+  }, [])
 
-    // TODO: validation
-
+  const createEvent = () => {
     if (event.is_free) {
       event.prices = []
     }
@@ -106,6 +128,81 @@ export default function CreateEvent() {
       })
   }
 
+  const updateEvent = () => {
+    if (event.is_free && event.prices !== undefined) {
+      for (let i = 0; i < event.prices?.length; i++) {
+        event.prices[i].price = -1
+      }
+    }
+    //@ts-ignore
+    for (let i = 0; i < event.prices?.length; i++) {
+      //@ts-ignore
+      delete event.prices[i].not_visible
+    }
+
+    event.utc_offset = -event.beginning_time.getTimezoneOffset()
+    event.capacity = parseInt(String(event.capacity), 10)
+    event.minimal_age = parseInt(String(event.minimal_age), 10)
+
+    const formData = new FormData()
+    formData.append("event", JSON.stringify(event))
+    if (image != undefined) {
+      formData.append(
+        "image",
+        image,
+        `event-poster.${image.type.split("/")[1]}`,
+      )
+    }
+
+    const headers = new Headers()
+    headers.append("Authorization", `Bearer ${jwtToken}`)
+    const requestOptions = {
+      headers: headers,
+      method: "PUT",
+      body: formData,
+    }
+
+    fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND}/events/${props.params.url_title}`,
+      requestOptions,
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          toast({
+            title: data.message,
+            variant: "destructive",
+          })
+
+          return
+        }
+
+        toast({
+          title: data.message,
+          variant: "success",
+        })
+
+        router.push("/")
+      })
+      .catch((error: Error) => {
+        toast({
+          title: error.message,
+          variant: "destructive",
+        })
+      })
+  }
+
+  const submit = (e: any) => {
+    e.preventDefault()
+
+    if (props.params.url_title === "new") {
+      createEvent()
+      return
+    }
+
+    updateEvent()
+  }
+
   return (
     <div
       className={"rounded bg-white/30 backdrop-blur md:h-[95vh] md:w-[95vw]"}
@@ -115,7 +212,13 @@ export default function CreateEvent() {
           <div className={"h-[40vh] md:w-1/2"}>
             <div className={"mr-5 h-full bg-purple-200/30 backdrop-blur"}>
               <img
-                src={image === undefined ? "" : URL.createObjectURL(image)}
+                src={
+                  props.params.url_title !== "new"
+                    ? image !== undefined
+                      ? URL.createObjectURL(image)
+                      : `${process.env.NEXT_PUBLIC_BACKEND}/static/${event.preview_image}`
+                    : `${process.env.NEXT_PUBLIC_BACKEND}/static/${event.preview_image}`
+                }
                 className={"h-full w-full object-cover"}
               />
               <div className={"absolute bottom-0 right-0 cursor-pointer"}>
@@ -284,54 +387,70 @@ export default function CreateEvent() {
                     type={"single"}
                     className="w-full pb-2"
                   >
-                    {event.prices?.map((price: Price, i: number) => (
-                      <AccordionItem value={`price-${i}`} key={price.id}>
-                        <AccordionTrigger className="h-10 w-full">
-                          {price.price} {price.currency}
-                        </AccordionTrigger>
-                        <AccordionContent className={"px-2 py-4"}>
-                          <Input
-                            type="number"
-                            value={event.prices![i].price}
-                            onChange={(e) => {
-                              let value = parseInt(e.target.value)
+                    {event.prices?.map(
+                      (price: Price, i: number) =>
+                        (!price.not_visible ||
+                          props.params.url_title === "new") && (
+                          <AccordionItem value={`price-${i}`} key={price.id}>
+                            <AccordionTrigger className="h-10 w-full">
+                              {price.price} {price.currency}
+                            </AccordionTrigger>
+                            <AccordionContent className={"px-2 py-4"}>
+                              <Input
+                                type="number"
+                                value={event.prices![i].price}
+                                onChange={(e) => {
+                                  let value = parseInt(e.target.value)
 
-                              const prices = event.prices
-                              prices![i].price = value
+                                  const prices = event.prices
+                                  prices![i].price = value
 
-                              setEvent({ ...event, prices: [...prices!] })
-                            }}
-                          />
-                          <Input
-                            className={"mt-2"}
-                            type="text"
-                            maxLength={3}
-                            value={event.prices![i].currency}
-                            onChange={(e) => {
-                              const prices = event.prices
-                              prices![i].currency = e.target.value
+                                  setEvent({ ...event, prices: [...prices!] })
+                                }}
+                              />
+                              <Input
+                                className={"mt-2"}
+                                type="text"
+                                maxLength={3}
+                                value={event.prices![i].currency}
+                                onChange={(e) => {
+                                  const prices = event.prices
+                                  prices![i].currency = e.target.value
 
-                              setEvent({ ...event, prices: [...prices!] })
-                            }}
-                          />
-                          <Button
-                            onClick={() => {
-                              const prices = event.prices!
-                              prices.splice(i, 1)
+                                  setEvent({ ...event, prices: [...prices!] })
+                                }}
+                              />
+                              <Button
+                                onClick={() => {
+                                  if (props.params.url_title === "new") {
+                                    const prices = event.prices!
+                                    prices.splice(i, 1)
 
-                              setEvent({
-                                ...event,
-                                prices: prices,
-                              })
-                            }}
-                            color="red"
-                            className="mt-2"
-                          >
-                            delete
-                          </Button>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
+                                    setEvent({
+                                      ...event,
+                                      prices: prices,
+                                    })
+                                  } else {
+                                    // @ts-ignore
+                                    event!.prices[i].price = -1
+                                    // @ts-ignore
+                                    event!.prices[i].not_visible = true
+                                  }
+                                }}
+                                color="red"
+                                className="mt-2"
+                              >
+                                delete
+                                {props.params.url_title !== "new" && (
+                                  <span>
+                                    (will be deleted, may be visual bug)
+                                  </span>
+                                )}
+                              </Button>
+                            </AccordionContent>
+                          </AccordionItem>
+                        ),
+                    )}
                   </Accordion>
                 )}
               </div>
@@ -347,8 +466,8 @@ export default function CreateEvent() {
               setEvent({ ...event, description: value! })
             }}
           />
-          <Button className={"mt-10 w-full"} onClick={createEvent}>
-            create event
+          <Button className={"mt-10 w-full"} onClick={submit}>
+            {props.params.url_title === "new" ? "create event" : "update event"}
           </Button>
         </div>
       </div>

@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { useUser } from "@/components/providers/UserProvider"
+import { useRouter } from "next/navigation"
 
 export default function Profile() {
   const { toast } = useToast()
+  const router = useRouter()
   const auth = useAuth()
 
   const { user, setUser } = useUser()
@@ -60,6 +62,22 @@ export default function Profile() {
 
   return (
     <div className={"w-80"}>
+      <Button
+        className={"mb-6 w-full"}
+        onClick={() => {
+          router.push("/user/tickets")
+        }}
+      >
+        tickets
+      </Button>
+      <Button
+        className={"mb-6 w-full"}
+        onClick={() => {
+          router.push("/user/my-events")
+        }}
+      >
+        events created by you
+      </Button>
       <div>Your email: {user?.email}</div>
       <div className={"mt-2 flex w-full items-center"}>
         <div className={"w-4/12"}>Your telegram:</div>

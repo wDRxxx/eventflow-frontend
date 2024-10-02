@@ -12,7 +12,7 @@ import {
 import { useAuth } from "./AuthProvider"
 import { User } from "@/types"
 import { useToast } from "@/hooks/use-toast"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 type UserState = {
   user: User
@@ -40,6 +40,7 @@ export default function UserProvider({
   const auth = useAuth()
   const { toast } = useToast()
   const router = useRouter()
+  const pathname = usePathname()
 
   const [user, setUser] = useState<User>(defaultUserState.user)
 
@@ -73,7 +74,8 @@ export default function UserProvider({
           duration: 2000,
         })
       })
-  }, [auth])
+    router.push(pathname)
+  }, [auth, router, pathname])
 
   if (auth.jwtToken === "") return <></>
   return (

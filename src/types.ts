@@ -20,6 +20,8 @@ export type Price = {
   id?: number
   price: number
   currency: string
+
+  not_visible?: boolean
 }
 
 export type User = {
@@ -31,4 +33,12 @@ export type User = {
 type YookassaSettings = {
   shop_id: string
   shop_key: string
+}
+
+export type Ticket = {
+  id?: string
+  is_used: boolean
+  first_name: string
+  last_name: string
+  event?: Event
 }

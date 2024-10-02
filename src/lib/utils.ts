@@ -11,7 +11,7 @@ export function convertUTCDateToLocalDate(date: Date): Date {
   let offset = date.getTimezoneOffset() / 60
   let hours = date.getHours()
 
-  newDate.setHours(hours - offset)
+  newDate.setHours(hours)
   return new Date(newDate.getTime())
 }
 
