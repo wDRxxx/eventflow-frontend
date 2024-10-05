@@ -34,9 +34,9 @@ jobs:
 
             npm run build
 
-            pm2 delete frontend
+            pm2 delete eventflow_frontend
 
-            pm2 start npm --name "frontend" -- start
+            pm2 start npm --name "eventflow_frontend" -- start
 
             pm2 save
 
