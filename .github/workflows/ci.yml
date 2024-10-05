@@ -36,7 +36,7 @@ jobs:
 
             pm2 delete eventflow_frontend
 
-            pm2 start npm --name "eventflow_frontend" -- start
+            pm2 start npm --name "eventflow_frontend" -- next -p 3001
 
             pm2 save
 
