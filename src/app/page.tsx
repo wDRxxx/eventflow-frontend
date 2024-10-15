@@ -31,11 +31,11 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="mt-10 min-h-screen w-full max-w-screen-xl">
+    <div className="mt-5 min-h-screen w-full max-w-screen-xl px-5 md:mt-10 md:px-0">
       <Link href="/user/edit-event/new">
         <Button>Create your own event</Button>
       </Link>
-      <div className={"mt-4 h-full w-full"}>
+      <div className={"h-full w-full md:mt-4"}>
         {events.length > 0 &&
           events.map((event, i) => {
             return (

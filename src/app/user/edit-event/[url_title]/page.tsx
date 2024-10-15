@@ -15,9 +15,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { convertUTCDateToLocalDate } from "@/lib/utils"
 import { useAuth } from "@/components/providers/AuthProvider"
-import { toast, useToast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 
 type EditEventPageProps = {
@@ -26,6 +25,7 @@ type EditEventPageProps = {
   }
 }
 
+// not optimized for mobile
 export default function EditEvent(props: EditEventPageProps) {
   const { user } = useUser()
   const { jwtToken } = useAuth()
@@ -519,7 +519,6 @@ export default function EditEvent(props: EditEventPageProps) {
           </Button>
         </div>
       </div>
-      <pre>{JSON.stringify(event, null, 2)}</pre>
     </div>
   )
 }

@@ -93,14 +93,20 @@ export default function EventPage(props: EventPageProps) {
   }
 
   return (
-    <div className={"flex w-full justify-center p-20"}>
-      <div className={"flex h-full w-full flex-col justify-center"}>
-        <div className={"flex w-full"}>
-          <img
-            className={"w-1/2 object-cover"}
-            src={`${process.env.NEXT_PUBLIC_BACKEND}/static/${event?.preview_image}`}
-          />
-          <div className={"ml-5 w-full"}>
+    <div
+      className={
+        "flex w-full max-w-screen-2xl justify-center p-5 md:mb-20 md:p-20"
+      }
+    >
+      <div>
+        <div className={"w-full md:flex"}>
+          {event !== undefined && (
+            <img
+              className={"object-cover md:w-2/3"}
+              src={`${process.env.NEXT_PUBLIC_BACKEND}/static/${event?.preview_image}`}
+            />
+          )}
+          <div className={"mt-4 w-full md:ml-5 md:mt-0"}>
             <h1 className={"text-4xl"}>{event?.title}</h1>
             <div className={"mt-2"}>
               {event?.beginning_time.toLocaleString()} -{" "}
@@ -153,52 +159,71 @@ export default function EventPage(props: EventPageProps) {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                   <DialogHeader>
-                    <DialogTitle>Buy a ticket</DialogTitle>
-                    <DialogDescription>
-                      You will be redirected to payment page
-                    </DialogDescription>
+                    <DialogTitle>
+                      {jwtToken !== "" ? "Buy a ticket" : "Login first"}
+                    </DialogTitle>
+                    {!event?.is_free && (
+                      <DialogDescription>
+                        You will be redirected to payment page
+                      </DialogDescription>
+                    )}
                   </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="firstname" className="text-right">
-                        First name
-                      </Label>
-                      <Input
-                        id="firstname"
-                        className="col-span-3"
-                        value={firstName}
-                        onChange={(e) => {
-                          setFirstName(e.target.value)
-                        }}
-                      />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="lastname" className="text-right">
-                        Last name
-                      </Label>
-                      <Input
-                        id="lastname"
-                        className="col-span-3"
-                        value={lastName}
-                        onChange={(e) => {
-                          setLastName(e.target.value)
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <div className={"flex w-full items-center justify-between"}>
-                      <h1 className={"text-2xl"}>
-                        Price:{" "}
-                        {event?.is_free ? (
-                          <span>Free</span>
-                        ) : (
-                          <span>{price?.price + " " + price?.currency}</span>
-                        )}
-                      </h1>
-                      <Button onClick={confirm}>Confirm</Button>
-                    </div>
-                  </DialogFooter>
+                  {jwtToken !== "" ? (
+                    <>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="firstname" className="text-right">
+                            First name
+                          </Label>
+                          <Input
+                            id="firstname"
+                            className="col-span-3"
+                            value={firstName}
+                            onChange={(e) => {
+                              setFirstName(e.target.value)
+                            }}
+                          />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="lastname" className="text-right">
+                            Last name
+                          </Label>
+                          <Input
+                            id="lastname"
+                            className="col-span-3"
+                            value={lastName}
+                            onChange={(e) => {
+                              setLastName(e.target.value)
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <div
+                          className={"flex w-full items-center justify-between"}
+                        >
+                          <h1 className={"text-2xl"}>
+                            Price:{" "}
+                            {event?.is_free ? (
+                              <span>Free</span>
+                            ) : (
+                              <span>
+                                {price?.price + " " + price?.currency}
+                              </span>
+                            )}
+                          </h1>
+                          <Button onClick={confirm}>Confirm</Button>
+                        </div>
+                      </DialogFooter>
+                    </>
+                  ) : (
+                    <Button
+                      className={"w-1/3"}
+                      onClick={() => router.push("/auth/login")}
+                    >
+                      Login
+                    </Button>
+                  )}
                 </DialogContent>
               </Dialog>
             </div>

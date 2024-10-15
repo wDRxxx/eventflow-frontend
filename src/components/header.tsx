@@ -58,7 +58,7 @@ export default function Header() {
   return (
     <header
       className={
-        "backdrop-blu sticky flex h-16 w-full justify-center bg-white/30"
+        "backdrop-blu sticky flex h-16 w-full justify-center bg-white/30 px-4"
       }
     >
       <div
