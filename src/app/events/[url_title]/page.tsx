@@ -162,7 +162,7 @@ export default function EventPage(props: EventPageProps) {
                     <DialogTitle>
                       {jwtToken !== "" ? "Buy a ticket" : "Login first"}
                     </DialogTitle>
-                    {!event?.is_free && (
+                    {!event?.is_free && jwtToken !== "" && (
                       <DialogDescription>
                         You will be redirected to payment page
                       </DialogDescription>

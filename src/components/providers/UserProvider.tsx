@@ -46,10 +46,6 @@ export default function UserProvider({
 
   useEffect(() => {
     if (auth.jwtToken === "") {
-      toast({
-        title: "Login first!",
-      })
-
       router.push("/")
       return
     }

@@ -386,7 +386,7 @@ export default function EditEvent(props: EditEventPageProps) {
                                           ]!.id! + event.prices!.length
                                         : 0,
                                     price: 0,
-                                    currency: "USD",
+                                    currency: "RUB",
                                   },
                                   ...event.prices!,
                                 ],
