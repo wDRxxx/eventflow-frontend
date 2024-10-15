@@ -39,6 +39,7 @@ export default function Header() {
 
         callToast("You was successfully logged out!", "success")
 
+        localStorage.setItem("authorized", "false")
         router.push("/")
         auth.setJwtToken("")
         setTimeout(() => {
@@ -75,18 +76,16 @@ export default function Header() {
               <Link className={"mr-2"} href={"/auth/login"}>
                 <Button>login</Button>
               </Link>
-              <Link href={"/auth/sign-up"}>
+              <Link href={"/auth/register"}>
                 <Button>signup</Button>
               </Link>
             </div>
           ) : (
             <div>
-              <Link href={"/user/profile"}>
+              <Link href={"/user/profile"} className={"mr-2"}>
                 <Button>profile</Button>
               </Link>
-              <Button className={"ml-8"} onClick={logout}>
-                logout
-              </Button>
+              <Button onClick={logout}>logout</Button>
             </div>
           )}
         </div>

@@ -56,13 +56,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const toggleRefresh = useCallback(
     (status: boolean) => {
-      // console.log("Clicked!")
-
       if (status) {
         let i = setInterval(() => {
           refresh()
             .then((data: any) => {
-              // console.log(data)
               if (data.message) {
                 setJwtToken(data.message)
               }
@@ -81,18 +78,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (jwtToken === "") {
-      refresh()
-        .then((data: any) => {
-          if (data.message) {
-            setJwtToken(data.message)
-            const jwtPayload = parseJwt(data.message)
-            setEmail(jwtPayload.email)
-            setRole(jwtPayload.role)
+      const isAuthed = localStorage.getItem("authorized")
+      if (isAuthed === "true" || isAuthed === null) {
+        refresh()
+          .then((data: any) => {
+            if (data.message) {
+              setJwtToken(data.message)
+              const jwtPayload = parseJwt(data.message)
+              setEmail(jwtPayload.email)
+              setRole(jwtPayload.role)
 
-            toggleRefresh(true)
-          }
-        })
-        .catch((err: Error) => {})
+              toggleRefresh(true)
+            }
+          })
+          .catch((err: Error) => {
+            if (err.name === "SyntaxError") {
+              localStorage.setItem("authorized", "false")
+            }
+          })
+      }
     }
   }, [jwtToken, toggleRefresh])
 

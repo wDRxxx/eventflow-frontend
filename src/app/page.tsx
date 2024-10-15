@@ -21,7 +21,7 @@ export default function Home() {
     )
       .then((response) => response.json())
       .then((data) => {
-        if (data.error) {
+        if (data === null) {
           return
         }
 

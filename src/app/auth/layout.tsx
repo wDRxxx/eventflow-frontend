@@ -5,13 +5,16 @@ import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { validateEmail } from "@/lib/utils"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 export default function SignUp() {
   const [email, setEmail] = useState<string>("")
   const [password, setPassword] = useState<string>("")
+
   const { toast } = useToast()
+
   const router = useRouter()
+  const pathname = usePathname()
 
   const callToast = (
     message: string,
@@ -48,28 +51,55 @@ export default function SignUp() {
       password: password,
     }
 
-    let requestOptions = {
-      body: JSON.stringify(body),
-      method: "POST",
+    if (pathname == "/auth/login") {
+      let requestOptions: RequestInit = {
+        body: JSON.stringify(body),
+        method: "POST",
+        credentials: "include",
+      }
+
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND}/auth/login`, requestOptions)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            callToast(data.message, "destructive")
+
+            return
+          }
+
+          localStorage.setItem("authorized", "true")
+          router.push("/")
+          setTimeout(() => {
+            window.location.reload()
+          }, 100)
+        })
+        .catch((error: Error) => {
+          callToast(`${error.message}... try again later`, "destructive")
+        })
+    } else if (pathname == "/auth/register") {
+      let requestOptions = {
+        body: JSON.stringify(body),
+        method: "POST",
+      }
+
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND}/auth/register`, requestOptions)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            callToast(data.message, "destructive")
+
+            return
+          }
+
+          router.push("/")
+          setTimeout(() => {
+            window.location.reload()
+          }, 100)
+        })
+        .catch((error: Error) => {
+          callToast(`${error.message}... try again later`, "destructive")
+        })
     }
-
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND}/auth/register`, requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error) {
-          callToast(data.message, "destructive")
-
-          return
-        }
-
-        router.push("/")
-        setTimeout(() => {
-          window.location.reload()
-        }, 100)
-      })
-      .catch((error: Error) => {
-        callToast(`${error.message}... try again later`, "destructive")
-      })
   }
 
   return (
@@ -116,7 +146,7 @@ export default function SignUp() {
 
           <div>
             <Button type="submit" className={"w-full"} onClick={onSubmit}>
-              Sign up
+              {pathname === "/auth/register" ? "Sign up" : "Log in"}
             </Button>
           </div>
         </div>
